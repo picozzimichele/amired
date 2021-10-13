@@ -13,9 +13,19 @@ export default function Post(props) {
     const [isOpenComment, setIsOpenComment] = useState(false)
     const [isOpenUpdate, setIsOpenUpdate] = useState(false)
 
+    function openComment() {
+        setIsOpenUpdate(false)
+        setIsOpenComment(!isOpenComment);
+    }
+
+    function openEdit() {
+        setIsOpenComment(false)
+        setIsOpenUpdate(!isOpenUpdate)
+    }
+
     return (
         <div key={props.postId} className="px-6 bg-black text-gray-300 py-4">   
-          <div className="border border-gray-700 bg-gray-800 rounded-md flex">
+          <div className="border border-gray-700 bg-gray-800 rounded-md flex hover:border-gray-400">
             <VoteButton 
                 reactionsCount={props.reactionsCount} 
                 postId={props.postId} 
@@ -28,14 +38,14 @@ export default function Post(props) {
                     <h2 className="text-xl mb-3 mt-3">{props.postDataText}</h2>
                     <div className="flex">
                         <button 
-                            onClick={() => setIsOpenComment(!isOpenComment) && setIsOpenUpdate(false)}
+                            onClick={() => openComment()}
                             className="flex text-sm text-gray-500 cursor-pointer hover:bg-gray-900 rounded-sm h-10 items-center w-32 px-1"
                         >
                             <AnnotationIcon className="h-5 w-5" />
                             <p className="ml-2">{props.commentsCount} Comments</p>
                         </button>
                         <button 
-                            onClick={() => setIsOpenUpdate(!isOpenUpdate) && setIsOpenComment(false)}
+                            onClick={() => openEdit()}
                             className="flex text-sm text-gray-500 cursor-pointer hover:bg-gray-900 rounded-sm h-10 items-center w-32 px-1"
                         >
                             <PencilAltIcon className="h-5 w-5" />

@@ -2,8 +2,6 @@ import Header from './Header';
 import BoardPost from './BoardPost';
 import BoardHeader from './BoardHeader';
 import Post from './Post';
-import Avatar from "./amiredavatar.png"
-import { PhotographIcon } from "@heroicons/react/outline"
 import { useForm } from "react-hook-form"
 
 import { asynchronize } from './Asyncronize';
@@ -104,12 +102,13 @@ function App() {
   const handleUpload = useCallback(async () => {
     //Uploading the IMAGE
     const liveFile = FileRepository.createFile({ file: image })
+    liveFile.on("dataUpdated", model => console.log(model.fileUrl + "FILE URL FROM DATA UPDATED"))
     console.log(liveFile.loadingStatus, JSON.stringify(liveFile.model) + "LIVE FILE")
 
     //Destructuring fileId and fileUrl
     const { fileId, fileUrl } = await asynchronize(liveFile)
     console.log(liveFile.loadingStatus, liveFile.model)
-    console.log(fileId, fileUrl + " FILE URL, FILE ID") //able to display correctly
+    console.log(fileId, fileUrl + " FILE ID, FILE URL") //able to display correctly
 
     setImage(null)
 
@@ -122,27 +121,31 @@ function App() {
       })
     )
 
-    console.log(JSON.stringify(parentPostModel + " PARENT POST MODEL"))
+    console.log(JSON.stringify(parentPostModel) + " PARENT POST MODEL")
 
     const childPostId = parentPostModel.children[0]
 
-    const childPost = await asynchronize(
-      PostRepository.postForId(childPostId)
-    )
+    console.log(childPostId + " CHILD POST ID") //WORKS
 
-    const [childFileId] = childPost.data.imageIds
+    const childPost = await PostRepository.postForId(childPostId)
 
-    const childLiveFile = await asynchronize(
-      FileRepository.getFile(childFileId)
-    )
-
-    console.log(liveFile.loadingStatus, JSON.stringify(liveFile.model) + "LIVE FILE MODEL")
-    console.log(childLiveFile.loadingStatus, JSON.stringify(childLiveFile.model) + "CHILD FILE MODEL")
+    console.log(JSON.stringify(childPost) + " CHILD POST")
+    console.log(JSON.stringify(childPost.data) + " CHILD POST DATA")
 
 
-    //returns two post and one child
+    // const [childFileId] = childPost.data.imageIds
 
-    setPostsImageUrl({ fileUrl })
+    // const childLiveFile = await asynchronize(
+    //   FileRepository.getFile(childFileId)
+    // )
+    // console.log(childLiveFile)
+    // console.log(liveFile.loadingStatus, JSON.stringify(liveFile.model) + "LIVE FILE MODEL")
+    // console.log(childLiveFile.loadingStatus, JSON.stringify(childLiveFile.model) + "CHILD FILE MODEL")
+
+
+    // //returns two post and one child
+
+    // setPostsImageUrl({ fileUrl })
 
   }, [image])
 
@@ -222,7 +225,6 @@ function App() {
     
     comments.on('dataUpdated', data => {
       // reload comment table
-      console.log((JSON.stringify(data)) + "DATA FROM COMMENTS")
       setPostComments(data.map(allComment => ({
         postComment: allComment.data.text,
         postCommentId: allComment.referenceId
@@ -242,6 +244,7 @@ function App() {
     liveFeed.once('dataUpdated', posts => {
       console.log(posts.map(post => post))
       console.log(posts)
+      console.log(JSON.stringify(posts[0]))
 
       setPosts(posts.map(post => ({
         postId: post.postId,
@@ -257,18 +260,19 @@ function App() {
 
   }, [deletePost, handleSubmit, addReaction, removeReaction, updatePost, postComment, handleUpload])
 
-
-  console.log(Date.now() + " DATE")
-
     return (
       <>
         <Header displayName={userInfo.displayName} />
         <BoardHeader />
         <div className="px-20 bg-black">
-        <BoardPost 
+        <BoardPost
+          //Post 
           handleSubmit={handleSubmit} 
           setComment={setComment} 
           comment={comment}
+          //Picture Upload
+          handleUpload={handleUpload}
+          setImage={setImage}
         />
         {posts.map((post) => 
           <Post 
@@ -294,16 +298,6 @@ function App() {
           />
         )}
       </div>
-
-      {/* <div className="flex flex-col w-full items-center mt-12 mx-20">
-        <div className="flex text-center w-1/3">  
-          <input 
-            type="file" 
-            onChange={handleChange}
-          />
-          <button onClick={handleUpload} className="ml-3 border-2 rounded px-3">Upload</button>
-        </div>
-      </div> */}
       </>
     );
   }

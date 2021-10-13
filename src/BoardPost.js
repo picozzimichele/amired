@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
 import Avatar from "./amiredavatar.png"
 import { PhotographIcon } from "@heroicons/react/outline"
+import ImageUploader from './ImageUploader'
 
-export default function BoardPost({handleSubmit, setComment, comment}) {
+export default function BoardPost({handleSubmit, setComment, comment, handleUpload, setImage}) {
+    const [isOpenUploader, setIsOpenUploader] = useState(false)
 
     return (
         <div className="bg-black px-6 py-4 text-gray-400">
@@ -20,10 +22,11 @@ export default function BoardPost({handleSubmit, setComment, comment}) {
               />
               <button className="ml-3 rounded px-2 text-sm">Post</button>
             </form>
-            <button className="px-2 py-1 hover:bg-gray-700 rounded-md">
+            <button onClick={() => setIsOpenUploader(true)} className="px-2 py-1 hover:bg-gray-700 rounded-md">
                 <PhotographIcon className="text-gray-400 w-6 h-6 m-1 mx-1" />
             </button>
           </div>
+          <ImageUploader open={isOpenUploader} onClose={() => setIsOpenUploader(false)} handleUpload={handleUpload} setImage={setImage}/>
         </div>
     )
 }

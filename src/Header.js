@@ -14,15 +14,17 @@ export default function Header(props) {
                 <SearchIcon className="text-gray-300 h-6 w-6 mt-2" />
                 <input type="text" className="bg-gray-800 p-1 pl-2 pr-0 text-sm block focus:outline-none text-white" placeholder="Search"></input>
             </form>
-            <button className="px-2 py-1">
-                <ChatIcon className="text-gray-400 w-6 h-6 m-1 mx-2" />
-            </button>
-            <button className="px-2 py-1">
-                <BellIcon className="text-gray-400 w-6 h-6 m-1 mx-2" />
-            </button>
-            <button className="px-2 py-1">
-                <PlusIcon className="text-gray-400 w-6 h-6 m-1 mx-2" />
-            </button>
+            <div className="hidden md:flex">
+                <button className="px-2 py-1">
+                    <ChatIcon className="text-gray-400 w-6 h-6 m-1 mx-2" />
+                </button>
+                <button className="px-2 py-1">
+                    <BellIcon className="text-gray-400 w-6 h-6 m-1 mx-2" />
+                </button>
+                <button className="px-2 py-1">
+                    <PlusIcon className="text-gray-400 w-6 h-6 m-1 mx-2" />
+                </button>
+            </div>    
             <button className="rounded-md flex ml-4 border px-2 border-gray-700">
                 <div className="block w-8 h-8 bg-gray-600 mt-auto mb-auto rounded-sm">
                 <img className="rounded-sm" src={Avatar} alt="avatar"/>
