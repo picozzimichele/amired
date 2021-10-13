@@ -1,4 +1,11 @@
-import './App.css';
+import Header from './Header';
+import BoardPost from './BoardPost';
+import BoardHeader from './BoardHeader';
+import Post from './Post';
+import Avatar from "./amiredavatar.png"
+import { PhotographIcon } from "@heroicons/react/outline"
+import { useForm } from "react-hook-form"
+
 import { asynchronize } from './Asyncronize';
 import { useState, useEffect, useCallback } from 'react';
 import ASCClient, { ConnectionStatus, ApiEndpoint, UserRepository, PostRepository, PostTargetType, FileRepository, CommentRepository } from '@amityco/js-sdk';
@@ -39,7 +46,7 @@ function App() {
   const [userInfo, setUserInfo] = useState({})
 
   //COMMENTS
-  const [postComments ,setPostComments] = useState([])
+  const [postComments, setPostComments] = useState([])
 
   //CALLBACK STATES
   const [isDeleting, setIsDeleting] = useState(false)
@@ -51,6 +58,7 @@ function App() {
 
   //FILE
   const [file, setFile] = useState();
+  const { register } = useForm()
 
   console.log(posts, " FROM STATE")
 
@@ -83,7 +91,7 @@ function App() {
       text: commentPost.comment,
     })
 
-      //clear comment fieldf
+      //clear comment field
       setComment("")
 
     }, [comment])
@@ -93,26 +101,6 @@ function App() {
       setImage(e.target.files[0]);
     }
   }  
-
-  /*
-    to understand how to split components, lists and objects
-    https://github.com/AmityCo/Amity-Social-Cloud-Web-Sample-Apps/tree/main/create-react-app-simple-chat
-
-
-    App
-      Login ->
-      Main -> 
-        Chatroom -> Feed
-          MessageList -> PostQuery
-            MessageItem -> Post
-              MessageContent
-                Text
-                Image
-                File
-                ...
-  */
-
-
   const handleUpload = useCallback(async () => {
     //Uploading the IMAGE
     const liveFile = FileRepository.createFile({ file: image })
@@ -158,13 +146,9 @@ function App() {
 
   }, [image])
 
-    // then create the image post
-    // create a additional post
-    // create avatar
- 
-
   //CREATE A COMMENT TO A POST
   const postComment = useCallback(async (postId, newComment) => {
+
     if (isCommenting) return
 
     setIsCommenting(true)
@@ -233,7 +217,7 @@ function App() {
     const comments = CommentRepository.queryComments({ 
       referenceType: 'post',
       referenceId: postId,
-      first: 5 // or last: 5
+      first: 20 // or last: 5
     });
     
     comments.on('dataUpdated', data => {
@@ -249,8 +233,6 @@ function App() {
       console.log('Comment LiveCollections can not query/get/sync data from server');
     });
   }, [postComment])
-
-
 
   useEffect(() => {
     const liveFeed = PostRepository.queryUserPosts({
@@ -268,6 +250,7 @@ function App() {
         postedUserId: post.postedUserId,
         sharedUserId: post.sharedUserId,
         commentsCount: post.commentsCount,
+        createdAt: post.createdAt,
 
       })))
     });
@@ -275,28 +258,44 @@ function App() {
   }, [deletePost, handleSubmit, addReaction, removeReaction, updatePost, postComment, handleUpload])
 
 
+  console.log(Date.now() + " DATE")
+
     return (
-      
-      <div className="flex flex-col w-full items-center mt-12 mx-20">
+      <>
+        <Header displayName={userInfo.displayName} />
+        <BoardHeader />
+        <div className="px-20 bg-black">
+        <BoardPost 
+          handleSubmit={handleSubmit} 
+          setComment={setComment} 
+          comment={comment}
+        />
+        {posts.map((post) => 
+          <Post 
+            postId={post.postId} 
+            postedUserId={post.postedUserId} 
+            postDataText={post.postDataText}
+            commentsCount={post.commentsCount}
+            reactionsCount={post.reactionsCount}
+            createdAt={post.createdAt}
+            //Reactions
+            deletePost={deletePost}
+            addReaction={addReaction}
+            removeReaction={removeReaction}
+            //Update & Display Comment
+            postComment={postComment}
+            postComments={postComments}
+            newComment={newComment}
+            setNewComment={setNewComment}
+            //Update Post
+            updatePost={updatePost}
+            updatedText={updatedText}
+            setUpdatedText={setUpdatedText}
+          />
+        )}
+      </div>
 
-        <div className="flex text-center w-1/3 mb-4">
-          <p>Logged in as: <strong>{userInfo.displayName}</strong></p>
-        </div>
-
-        <div className="flex text-center w-1/3 mb-4">
-          <form onSubmit={handleSubmit}>
-            <p className="mr-4 text-left">Add Post</p>
-            <input 
-              className="border-black border rounded" 
-              type="text" 
-              required
-              value={comment}
-              onChange={(event) => setComment(event.target.value)}
-            />
-            <button className="ml-3 border-2 rounded px-3">Send</button>
-          </form>
-        </div>
-
+      {/* <div className="flex flex-col w-full items-center mt-12 mx-20">
         <div className="flex text-center w-1/3">  
           <input 
             type="file" 
@@ -304,63 +303,8 @@ function App() {
           />
           <button onClick={handleUpload} className="ml-3 border-2 rounded px-3">Upload</button>
         </div>
-
-        <div className="flex text-left w-1/3 mt-12">
-          <div>
-            {posts.map((post) => 
-              <div className="my-3 border-2 border-gray-300 rounded py-5 px-5" key={post.postId}>
-                <div className="flex mb-5 space-x-2 items-center">
-                <img 
-                  alt="profile pic" 
-                  src={"https://media.istockphoto.com/photos/colored-powder-explosion-on-black-background-picture-id1057506940?k=20&m=1057506940&s=612x612&w=0&h=3j5EA6YFVg3q-laNqTGtLxfCKVR3_o6gcVZZseNaWGk="} 
-                  className="rounded-full h-10 w-10"
-                />
-                <p className="text-sm">Username: {post.postedUserId}</p>
-                </div>
-                <p className="text-xs mb-10">ID: {post.postId}</p>
-                <p className="text-md font-bold">Post: {post.postDataText}</p>
-                <form onSubmit={() => updatePost(post.postId, updatedText)}>
-                  <input
-                    key={post.postId} 
-                    className="border-black border rounded" 
-                    type="text" 
-                    required
-                    onChange={(event) => setUpdatedText(event.target.value)}
-                  />
-                  <button className="ml-3 border-2 rounded px-3">update post</button>
-                </form>
-                <form onSubmit={() => postComment(post.postId, newComment)} className="mt-12">
-                  <input
-                    key={post.postId} 
-                    className="border-black border rounded" 
-                    type="text" 
-                    required
-                    onChange={(event) => setNewComment(event.target.value)}
-                  />
-                  <button className="ml-3 border-2 rounded px-3">add Comment</button>
-                </form>
-                {postComments.map((singleComment =>
-                    <div>
-                      {singleComment.postCommentId === post.postId &&
-                        <p className="text-xs border-2 w-2/3 my-1">
-                          {singleComment.postComment}
-                        </p>
-                      }
-                    </div>
-                ))}
-                <p>{post.commentsCount} Comments</p>  
-                <div className="flex my-4">
-                  <p>{post.reactionsCount}</p>              
-                  <button className="mx-2" onClick={() => addReaction(post.postId)}>Up</button>
-                  <button className="mx-2" onClick={() => removeReaction(post.postId)}>Down</button>
-                </div>
-                <button type="button" onClick={() => deletePost(post.postId)} className="text-sm px-2 border-solid rounded border-gray-100 border-2">Delete</button>
-              </div>
-            )}
-          </div>
-        </div>
-
-      </div>
+      </div> */}
+      </>
     );
   }
 

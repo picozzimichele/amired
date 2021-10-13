@@ -1,4 +1,4 @@
-export const asynchronize = async (liveThing, immediately = true) => {
+export const asynchronize = async (liveThing, immediately = false) => {
     if (immediately && ((liveThing.models && liveThing.models.length) || liveThing.model))
     
     return liveThing.models || liveThing.model;

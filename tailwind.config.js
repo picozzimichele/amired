@@ -5,7 +5,13 @@ module.exports = {
     extend: {},
   },
   variants: {
-    extend: {},
+    extend: {
+      colors: {
+        reddit_dark: {
+          DEFAULT: "#030303"
+        }
+      }
+    },
   },
   plugins: [],
 }
